@@ -1,0 +1,30 @@
+import streamlit as st
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+import numpy as np
+from PIL import Image
+import io
+
+# Load the trained model (ensure the model file is available in the model folder)
+model = load_model('model/location_image_classifier.h5')
+
+# Define image upload function
+def predict_image(image):
+    img = Image.open(image)
+    img = img.resize((224, 224))  # Resize to match model input size
+    img = np.array(img) / 255.0   # Normalize image
+    img = np.expand_dims(img, axis=0)
+    
+    prediction = model.predict(img)
+    return prediction
+
+# Streamlit app
+st.title("Location Image Classifier")
+st.markdown("Upload an image to classify its location.")
+
+image = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
+
+if image:
+    prediction = predict_image(image)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.write(f"Prediction: {prediction}")
